@@ -1,6 +1,6 @@
 {
   "name": "organize-files",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI to organize your files based on there extentions.",
   "main": "index.js",
   "scripts": {
