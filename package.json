@@ -1,10 +1,11 @@
 {
   "name": "organize-files",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI to organize your files based on there extentions.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "pkg": "pkg index.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,13 @@
   "dependencies": {
     "args": "^5.0.1"
   },
-  "bin": "index.js"
+  "bin": {
+    "organize-files": "index.js"
+  },
+  "pkg": {
+    "assets": "node_modules/**/*"
+  },
+  "devDependencies": {
+    "pkg": "^4.4.9"
+  }
 }
