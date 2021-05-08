@@ -1,0 +1,25 @@
+{
+  "name": "organize-files",
+  "version": "1.0.0",
+  "description": "CLI to organize your files based on there extentions.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nkg447/organize-files.git"
+  },
+  "keywords": [
+    "files"
+  ],
+  "author": "Nikunj Gupta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nkg447/organize-files/issues"
+  },
+  "homepage": "https://github.com/nkg447/organize-files#readme",
+  "dependencies": {
+    "args": "^5.0.1"
+  }
+}
