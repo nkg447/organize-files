@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const FileType = require("file-type");
 
 const VIDEO_EXTENTIONS =
   ".webm|.mkv|.flv|.flv|.vob|.ogv|.ogg|.drc|.gifv|.mng|.avi|.MTS|.M2TS|.TS|.mov|.qt|.wmv|.yuv|.rm|.rmvb|.viv|.asf|.amv|.mp4|.m4p|.m4v|.mpg|.mp2|.mpeg|.mpe|.mpv|.mpg|.mpeg|.m2v|.m4v|.svi|.3gp|.3g2|.mxf|.roq|.nsv|.flv|.f4v|.f4p|.f4a|.f4b";
@@ -50,21 +51,41 @@ const moveFile = (oldPath, newPath) => {
   fs.renameSync(oldPath, newPath);
 };
 
-const organizeFile = (file, parent) => {
-  console.log(`Organizing file ${file}`);
-  const catagory = getCatagory(file);
+const getFileType = (file) => {
+  const stream = fs.createReadStream(file);
+  return FileType.fromStream(stream);
+};
+
+const moveToCatagoryFolder = (file, parent, catagory) => {
+  ensureFolder(catagory, parent);
   const filePath = path.join(parent, file);
-  if (catagory) {
-    ensureFolder(catagory, parent);
-    const newPath = path.join(parent, catagory, file);
-    moveFile(filePath, newPath);
-    console.log(`Moved file ${file} to ${catagory} folder`);
-    return true;
-  } else {
-    console.log(fs.statSync(filePath));
-    console.log(`Cannot catagorize ${file}`);
-    return false;
-  }
+  const newPath = path.join(parent, catagory, file);
+  moveFile(filePath, newPath);
+};
+
+const organizeFile = (file, parent) => {
+  return new Promise((resolve, reject) => {
+    const catagory = getCatagory(file);
+    if (catagory) {
+      moveToCatagoryFolder(file, parent, catagory);
+      console.log(`Moved file ${file} to ${catagory} folder`);
+      resolve(true);
+    } else {
+      const filePath = path.join(parent, file);
+      getFileType(filePath).then((fileType) => {
+        if (fileType) {
+          const ext = "." + fileType.ext;
+          const catagory = getCatagory(ext);
+          if (catagory) {
+            moveToCatagoryFolder(file, parent, catagory);
+            return true;
+          }
+        }
+        console.log(`Cannot catagorize ${file}`);
+        resolve(false);
+      });
+    }
+  });
 };
 
 const organizeFiles = (dir) => {
@@ -75,13 +96,13 @@ const organizeFiles = (dir) => {
         reject(err);
         return;
       }
-      let count = 0;
-      files
-        .filter((file) => fs.statSync(path.join(dir, file)).isFile())
-        .forEach((file) => {
-          count += organizeFile(file, dir) ? 1 : 0;
-        });
-      resolve(count);
+      Promise.all(
+        files
+          .filter((file) => fs.statSync(path.join(dir, file)).isFile())
+          .map((file) => organizeFile(file, dir))
+      ).then((data) => {
+        resolve(data.filter((e) => e).length);
+      });
     });
   });
 };
